@@ -1,0 +1,116 @@
+<% include ../partials/header.ejs %>
+
+router.get('/add', (req, res) => {
+  res.render('book-details', {
+    title: 'Add Book',
+    books: {}
+  });
+});
+
+router.post('/add', (req, res) => {
+  let book = new Book({
+    title: req.body.title,
+    author: req.body.author,
+    publicationDate: req.body.publicationDate,
+    genre: req.body.genre
+  });
+  book.save((err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.redirect('/books');
+    }
+  });
+});
+
+router.get('/:id', (req, res) => {
+  let id = req.params.id;
+  Book.findById(id, (err, book) => {
+    res.render('book-details', {
+      title: 'Edit Book',
+      books: book
+    });
+  });
+});
+
+router.post('/:id', (req, res) => {
+  let id = req.params.id;
+  let book = {};
+  book.title = req.body.title;
+  book.author = req.body.author;
+  book.publicationDate = req.body.publicationDate;
+  book.genre = req.body.genre;
+
+  let query = {_id: id};
+  Book.update(query, book, (err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.redirect('/books');
+    }
+  });
+});
+
+router.get('/delete/:id', (req, res) => {
+  let id = req.params.id;
+  Book.remove({_id: id}, (err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.redirect('/books');
+    }
+  });
+});
+
+it('should render the add book form', (done) => {
+  chai.request(server)
+    .get('/books/add')
+    .end((err, res) => {
+      expect(res).to.have.status(200);
+      expect(res).to.be.html;
+      done();
+    });
+});
+   
+
+
+
+<!-- MAIN CONTENT -->
+
+    
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-offset-3 col-md-6">
+      <h1><%= title %></h1>
+      <form class="form" method="post">
+        <div class="form-group">
+          <label for="NameTextField">Title</label>
+          <input type="text" class="form-control" id="NameTextField"
+            placeholder="Book Name" name="title" value="<%= books.Title %>" required>
+        </div>
+        <div class="form-group">
+          <label for="PriceTextField">Price</label>
+          <input type="text" class="form-control" id="PriceTextField"
+            placeholder="Book Price" name="price" value="<%= books.Price %>" required>
+        </div>
+        <div class="form-group">
+          <label for="AuthorTextField">Author</label>
+          <input type="text" class="form-control" id="AuthorTextField"
+            placeholder="Book Author" name="author" value="<%= books.Author %>" required>
+        </div>
+        <div class="form-group">
+          <label for="GenreTextField">Genre</label>
+          <input type="text" class="form-control" id="GenreTextField"
+            placeholder="Book Genre" name="genre" value="<%= books.Genre %>" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary"><i class="fa fa-check-square-o"></i> Submit</button>
+        <a href="/books" class="btn btn-warning"><i class="fa fa-undo"></i> Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
